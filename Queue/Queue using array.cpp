@@ -2,7 +2,7 @@
 #include<cstdio>
 using namespace std;
 
-#define Size 100
+#define Size 5
 
 class Queue{ 
     public: 
@@ -15,8 +15,7 @@ class Queue{
 Queue* createQueue(unsigned num){
 
     Queue* queue = new Queue();     
-    queue->capacity = num; 
-    queue->front = queue->rear = -1; 
+    queue->capacity = num;  
     queue->size = 0;  
     queue->array = new int[(queue->capacity * sizeof(int))]; 
     return queue; 
@@ -24,13 +23,18 @@ Queue* createQueue(unsigned num){
  
 void Enqueue(Queue* queue, int item){ 
      
-    if(queue->size ==0)
+    if(queue->size==0){
         queue->front=0;
+        queue->rear=-1;
+    }
     else if(queue->size==queue->capacity){
         cout<<"Overflow"<<endl;  
         return;
     }
-    queue->rear = (queue->rear + 1); 
+    if(queue->rear == queue->capacity-1)
+        queue->rear=0;
+    else    
+        queue->rear = (queue->rear + 1); 
     queue->array[queue->rear] = item; 
     queue->size = queue->size + 1; 
     
@@ -43,17 +47,28 @@ int Dequeue(Queue* queue){
         return -1;
     }
     int item = queue->array[queue->front];
-    queue->front = (queue->front + 1); 
+    if(queue->front == queue->capacity-1)
+       queue->front = 0;
+    else   
+       queue->front = (queue->front + 1); 
     queue->size = queue->size - 1; 
     return item;  
 }
     
 void Traverse(Queue* queue){
     //cout<<"Elements in the queue are:"<<endl;
+    if(queue->size==0){
+        cout<<"Empty Queue"<<endl;
+        return;
+    }
     int track = queue->front;
-    while(track<=queue->rear){
+    int count = 0;
+    while(queue->size!=count){
         cout<<queue->array[track]<<" ";
+        count++;
         track+=1;
+        if (track==queue->capacity)
+            track=0;
     }
     cout<<endl;
 }
