@@ -21,6 +21,9 @@ class BSearchTree{
     void RangedSearch(int lower,int upper,Node *Root);
     void Insert(int val);
     void Delete(int val);
+    void PostTrav(Node *cur);
+    void PreTrav(Node *cur);
+    void InTrav(Node *cur);
 };
 
 Node* BSearchTree::find(Node *cur,int key){
@@ -131,4 +134,36 @@ void BSearchTree::Delete(int key){
         delete Temp;    
     }
 }
+
+void BSearchTree::PreTrav(Node *cur){
+    
+    if (cur==NULL)
+       return;
+    
+    cout<<cur->key<<" ";
+    PreTrav(cur->Left);
+    PreTrav(cur->Right);
+}
+
+void BSearchTree::PostTrav(Node *cur){
+    
+    if (cur==NULL)
+       return;
+
+    PostTrav(cur->Left);
+    PostTrav(cur->Right);
+    cout<<cur->key<<" ";
+}
+
+void BSearchTree::InTrav(Node *cur){
+    
+    if (cur==NULL)
+       return;
+
+    InTrav(cur->Left);
+    cout<<cur->key<<" ";
+    InTrav(cur->Right);
+}
+
+
 
