@@ -20,6 +20,7 @@ class BSearchTree{
     Node *RightAncestor(Node *cure);
     void RangedSearch(int lower,int upper,Node *Root);
     void Insert(int val);
+    void Delete(int val);
 };
 
 Node* BSearchTree::find(Node *cur,int key){
@@ -95,4 +96,39 @@ void BSearchTree::Insert(int val){
     }
 }
 
+void BSearchTree::Delete(int key){
+    Node* Temp = find(root,key);
+    if (Temp->Right == NULL){         // Promote Left Child
+        if(Temp->Left != NULL)        // Check if it's a Leaf Node 
+            (Temp->Left)->Parent = Temp->Parent;
+        if(Temp->key>(Temp->Parent)->key){
+            (Temp->Parent)->Right = Temp->Left;
+        }
+        else{
+            (Temp->Parent)->Left = Temp->Left;
+        }
+        delete Temp;                
+    }
+    else{
+        Node* next = Next(Temp);     
+        if(next->Right!=NULL){       // Promote Right Child of Next if it exists
+            (next->Right)->Parent = next->Parent;
+            (next->Parent)->Left = next->Right;
+        }
+        next->Parent = Temp->Parent; // Replace Temp with it's next 
+        next->Left = Temp->Left; 
+        next->Right = Temp->Right;
+        if(Temp->Left!=NULL)
+            (Temp->Left)->Parent = next;
+        if(Temp->Right!=NULL)
+            (Temp->Right)->Parent = next;
+        if(Temp->key>(Temp->Parent)->key){
+            (Temp->Parent)->Right = next;
+        }
+        else{
+            (Temp->Parent)->Left = next;
+        }
+        delete Temp;    
+    }
+}
 
