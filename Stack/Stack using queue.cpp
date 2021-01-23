@@ -1,4 +1,6 @@
 
+// Implementing fundamental operations of stack using queue
+
 #include<iostream>
 #include<Queue>
 using namespace std;
@@ -14,15 +16,15 @@ class Stack{
     }
     void Push(int key);
     int Pop ();
-    void Traverse();
     int Top();
 };
 
 void Stack::Push(int key){
-    Q.push(key);
+    Q.push(key);         // O(1)
+    size+=1;
 }
 
-int Stack::Pop(){
+int Stack::Pop(){        // O(n)
 
     if (size==0){
         cout<<"Underflow"<<endl;
@@ -30,7 +32,7 @@ int Stack::Pop(){
     }
     int Temp= size;
     int x;
-    while(Temp>0){
+    while(Temp>1){
         x = Q.front();
         Q.pop();
         Q.push(x);
@@ -38,11 +40,17 @@ int Stack::Pop(){
     }
     x = Q.front();
     Q.pop();
+    size-=1;
     return x;
 } 
 
-void Stack::Traverse(){
-    
+int Stack::Top(){
+    if (size==0){
+        cout<<"Empty Stack"<<endl;
+        return -1;
+    }
+    //cout<<size<<endl;
+    return Q.back();
 }
 
 int main(){
@@ -52,7 +60,7 @@ int main(){
     while(flag){
         cout<<"1.)PUSH"<<endl;
         cout<<"2.)POP"<<endl;
-        cout<<"3.)TRAVERSE"<<endl;
+        cout<<"3.)TOP"<<endl;
         cout<<"4.)EXIT"<<endl;
         cout<<"Enter Your Choice =";cin>>choice;
         switch(choice){
@@ -68,11 +76,12 @@ int main(){
                 cout<<"The Deleted Element Is = "<<num<<endl;
             break;
             case 3:
-            cout<<"The Element(s) In The Stack(s) is/are..."<<endl;
-            stack.Traverse();
+            cout<<"The Element at the Top is"<<endl;
+            cout<<stack.Top()<<endl;
             break;
             case 4:
             flag = false;
+            break;
             default:
             flag = false;            
         }
