@@ -63,7 +63,12 @@ void BSearchTree::RotateRight(Node* cur){  // O(1)
     if(cur->Parent==NULL){
         root = Left;
     }
+    else if((Left->Parent)->key>Left->key)
+       (Left->Parent)->Left = Left;
+    else
+       (Left->Parent)->Right = Left;
     cur->Parent = Left;
+    
 }
 
 void BSearchTree::RotateLeft(Node* cur){  // O(1)
@@ -74,7 +79,12 @@ void BSearchTree::RotateLeft(Node* cur){  // O(1)
     if(cur->Parent==NULL){
         root = Right;
     }
+    else if((Right->Parent)->key>Right->key)
+       (Right->Parent)->Left = Right;
+    else
+       (Right->Parent)->Right = Right;
     cur->Parent = Right;
+    
 }
 
 void BSearchTree::RebalanceRight(Node* cur){  // O(1)
@@ -146,7 +156,7 @@ Node* BSearchTree::LeftDescendant(Node *cur){
     if (cur->Left == NULL)          // Can't go more left
         return cur;
     else
-       LeftDescendant(cur->Left);    
+       return LeftDescendant(cur->Left);    
 }
 
 Node* BSearchTree::RightAncestor(Node *cur){
