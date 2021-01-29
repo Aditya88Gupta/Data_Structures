@@ -2,6 +2,7 @@
 // Implementation of Binary Search Tree
 
 #include<iostream>
+#include<limits>
 using namespace std;
 
 struct Node{
@@ -23,15 +24,22 @@ class BSearchTree{
     Node *RightAncestor(Node *cure);
     void RangedSearch(int lower,int upper,Node *Root);
     void Insert(int val);
-    void Delete(int val);
+    void Delete(Node* Temp);
     void PostTrav(Node *cur);
     void PreTrav(Node *cur);
     void InTrav(Node *cur);
+    Node* Merge(Node* R1,Node* R2);
+    Node* MWR(Node* R1,Node* R2,Node* T);    // Merge With Root
+    Node* Split(Node* cur,int key);
     Node* Root();
+    void SetRoot(Node* New);
 };
 
 Node* BSearchTree::Root(){
     return root;
+}
+void BSearchTree::SetRoot(Node* New){
+    root=New;
 }
 
 Node* BSearchTree::find(Node *cur,int key){                  
@@ -49,6 +57,23 @@ Node* BSearchTree::find(Node *cur,int key){
         return cur;
     }   
 }
+
+Node* BSearchTree::Merge(Node* R1,Node* R2){
+    int Inf=numeric_limits<int>::max();   // Max value int can take 
+    Node* newroot= find(R1,Inf);         // Find node with max value
+    Delete(newroot);
+    return MWR(R1,R2,newroot);
+}
+
+Node* BSearchTree::MWR(Node* R1,Node* R2,Node* T){
+    T->Left=R1;                         // All nodes of R1 are smaller than R2
+    T->Right=R2;
+    T->Parent=NULL;
+    R1->Parent=R2->Parent=T;
+    return T;
+}
+
+Node* BSearchTree::Split(Node* cur,int key)
 
 Node* BSearchTree::LeftDescendant(Node *cur){
 
@@ -107,8 +132,7 @@ void BSearchTree::Insert(int val){    // O(Height(Tree))
     }
 }
 
-void BSearchTree::Delete(int key){     // O(Height(Tree))
-    Node* Temp = find(root,key);
+void BSearchTree::Delete(Node* Temp){     // O(Height(Tree))
     if (Temp->Right == NULL){         // Promote Left Child
         if(Temp->Left != NULL)       // Check if it's a Leaf Node 
             (Temp->Left)->Parent = Temp->Parent;
@@ -199,7 +223,7 @@ int main(){
             case 2:
                 cout<<"Enter The Element To Be Deleted =";
                 cin>>x;
-                tree.Delete(x);
+                tree.Delete(tree.find(tree.Root(),x));
                 break;
             case 3:
                 tree.InTrav(tree.Root());
