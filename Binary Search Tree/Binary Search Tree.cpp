@@ -30,7 +30,7 @@ class BSearchTree{
     void InTrav(Node *cur);
     Node* Merge(Node* R1,Node* R2);
     Node* MWR(Node* R1,Node* R2,Node* T);    // Merge With Root
-    Node* Split(Node* cur,int key);
+    void Split(Node* cur,int key,Node* R1,Node* R2);
     Node* Root();
     void SetRoot(Node* New);
 };
@@ -73,7 +73,25 @@ Node* BSearchTree::MWR(Node* R1,Node* R2,Node* T){
     return T;
 }
 
-Node* BSearchTree::Split(Node* cur,int key)
+void BSearchTree::Split(Node* R,int key,Node* R1,Node*R2){
+
+    if (R==NULL){
+        R1=R2=NULL;
+    }
+    if (key<R->key){
+        Split(R->Left,key,R1,R2);
+        R2=MWR(R2,R->Right,R);
+    }
+    if(key>R->key){
+        Split(R->Right,key,R1,R2);
+        R1=MWR(R->Left,R1,R);
+    }
+    else{
+        R1=R->Left;
+        R2=R->Right;
+    }
+
+}
 
 Node* BSearchTree::LeftDescendant(Node *cur){
 
