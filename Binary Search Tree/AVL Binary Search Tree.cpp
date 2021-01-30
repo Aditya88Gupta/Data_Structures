@@ -5,8 +5,7 @@
 #include<iostream>
 using namespace std;
 
-struct Node{
-    
+struct Node{  
     int key;
     int height;
     Node *Left,*Right,*Parent;
@@ -79,7 +78,6 @@ void BSearchTree::RotateRight(Node* cur){  // O(1)
     else
        (Left->Parent)->Right = Left;
     cur->Parent = Left;
-    
 }
 
 void BSearchTree::RotateLeft(Node* cur){  // O(1)
@@ -194,7 +192,7 @@ Node* BSearchTree::AVLMWR(Node* R1,Node* R2,Node* T){
     else{
         Node* Temp=AVLMWR(R1,R2->Left,T);
         R2->Left=Temp;
-        Temp->Parent=R1;
+        Temp->Parent=R2;
         Rebalance(R2);
         return root;
     }
@@ -207,11 +205,11 @@ void BSearchTree::Split(Node* R,int key,Node* &R1,Node* &R2){
     }
     if (key<R->key){
         Split(R->Left,key,R1,R2);
-        R2=MWR(R2,R->Right,R);
+        R2=AVLMWR(R2,R->Right,R);
     }
     if(key>R->key){
         Split(R->Right,key,R1,R2);
-        R1=MWR(R->Left,R1,R);
+        R1=AVLMWR(R->Left,R1,R);
     }
     else{
         R1=R->Left;
@@ -371,12 +369,12 @@ int main(){
         cout<<"Enter Your Choice=";cin>>choice;
         switch(choice){
             case 1:
-                cout<<"Enter The Element To Be Inserted =";
+                cout<<"Enter The Element To Be Inserted=";
                 cin>>ele;
                 tree.AVLInsert(ele);
                 break;
             case 2:
-                cout<<"Enter The Element To Be Deleted =";
+                cout<<"Enter The Element To Be Deleted=";
                 cin>>x;
                 tree.AVLDelete(x);
                 break;
