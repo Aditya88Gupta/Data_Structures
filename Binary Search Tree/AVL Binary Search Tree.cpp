@@ -1,6 +1,7 @@
 
 // Implementation of Binary Search Tree which satisfies the AVL property
 
+#include<limits>
 #include<iostream>
 using namespace std;
 
@@ -18,10 +19,10 @@ class BSearchTree{
     BSearchTree(){
         root = NULL;
     }
-    Node * find(Node *cur,int key);
-    Node * Next(Node *cur);
-    Node *LeftDescendant(Node *cur);
-    Node *RightAncestor(Node *cure);
+    Node* find(Node *cur,int key);
+    Node* Next(Node *cur);
+    Node* LeftDescendant(Node *cur);
+    Node* RightAncestor(Node *cure);
     void RangedSearch(int lower,int upper,Node *Root);
     void Insert(int val);
     void AVLInsert(int val);
@@ -32,15 +33,25 @@ class BSearchTree{
     void RebalanceRight(Node* cur);
     void RotateLeft(Node* cur);
     void RotateRight(Node* cur);
-    void Delete(int val);
+    void Delete(Node* Temp);
     void PostTrav(Node *cur);
     void PreTrav(Node *cur);
     void InTrav(Node *cur);
+    Node* Merge(Node* R1,Node* R2);
+    Node* MWR(Node* R1,Node* R2,Node* T);     // Merge With Root
+    Node* AVLMWR(Node* R1,Node* R2,Node* T); //  Merging and retaning balance
+    void Split(Node* cur,int key,Node* &R1,Node* &R2);
     Node* Root();
+    void SetRoot(Node* New);
 };
 
 Node* BSearchTree::Root(){
     return root;
+}
+
+void BSearchTree::SetRoot(Node* New){
+    root=New;
+    root->Parent=NULL;
 }
 
 void BSearchTree::AdjustHeight(Node* cur){  
@@ -151,6 +162,63 @@ Node* BSearchTree::find(Node *cur,int key){
     }   
 }
 
+Node* BSearchTree::Merge(Node* R1,Node* R2){
+    int Inf=numeric_limits<int>::max();   // Max value int can take 
+    Node* newroot= find(R1,Inf);         // Find node with max value
+    Delete(newroot);
+    return AVLMWR(R1,R2,newroot);
+}
+
+Node* BSearchTree::MWR(Node* R1,Node* R2,Node* T){
+    T->Left=R1;                         // All nodes of R1 are smaller than R2
+    T->Right=R2;
+    T->Parent=NULL;
+    R1->Parent=R2->Parent=T;
+    AdjustHeight(T);
+    //Rebalance(T);
+    return T;
+}
+
+Node* BSearchTree::AVLMWR(Node* R1,Node* R2,Node* T){
+
+    if (((R1->height)-(R2->height))<=1 && ((R1->height)-(R2->height))>=-1){
+        return MWR(R1,R2,T);
+    }
+    else if(R1->height>R2->height){
+        Node* Temp=AVLMWR(R1->Right,R2,T);
+        R1->Right=Temp;
+        Temp->Parent=R1;
+        Rebalance(R1);
+        return root;
+    }
+    else{
+        Node* Temp=AVLMWR(R1,R2->Left,T);
+        R2->Left=Temp;
+        Temp->Parent=R1;
+        Rebalance(R2);
+        return root;
+    }
+}
+
+void BSearchTree::Split(Node* R,int key,Node* &R1,Node* &R2){
+
+    if (R==NULL){
+        R1=R2=NULL;
+    }
+    if (key<R->key){
+        Split(R->Left,key,R1,R2);
+        R2=MWR(R2,R->Right,R);
+    }
+    if(key>R->key){
+        Split(R->Right,key,R1,R2);
+        R1=MWR(R->Left,R1,R);
+    }
+    else{
+        R1=R->Left;
+        R2=R->Right;
+    }
+}
+
 Node* BSearchTree::LeftDescendant(Node *cur){
 
     if (cur->Left == NULL)          // Can't go more left
@@ -216,8 +284,7 @@ void BSearchTree::AVLInsert(int val){
 }
 
 
-void BSearchTree::Delete(int key){     // O(log(n))
-    Node* Temp = find(root,key);
+void BSearchTree::Delete(Node* Temp){     // O(log(n))
     if (Temp->Right == NULL){         // Promote Left Child
         if(Temp->Left != NULL)       // Check if it's a Leaf Node 
             (Temp->Left)->Parent = Temp->Parent;
@@ -254,16 +321,15 @@ void BSearchTree::Delete(int key){     // O(log(n))
 
 void BSearchTree::AVLDelete(int val){  
     Node* cur = find(Root(),val);  
-    cur = (Next(cur))->Parent;
-    Delete(val);
-    Rebalance(cur);
+    Node* temp = (Next(cur))->Parent;
+    Delete(cur);
+    Rebalance(temp);
 }
 
 void BSearchTree::PreTrav(Node *cur){   // O(n)
     
     if (cur==NULL)
        return;
-    
     cout<<cur->key<<" ";
     PreTrav(cur->Left);
     PreTrav(cur->Right);
@@ -273,7 +339,6 @@ void BSearchTree::PostTrav(Node *cur){   // O(n)
     
     if (cur==NULL)
        return;
-
     PostTrav(cur->Left);
     PostTrav(cur->Right);
     cout<<cur->key<<" ";
@@ -283,7 +348,6 @@ void BSearchTree::InTrav(Node *cur){   // O(n)
     
     if (cur==NULL)
        return;
-
     InTrav(cur->Left);
     cout<<cur->key<<" ";
     InTrav(cur->Right);
@@ -297,7 +361,6 @@ int main(){
     bool flag = true;
     int x;
     while(flag){
-
         cout<<"1.)Insert"<<endl;
         cout<<"2.)Delete"<<endl;
         cout<<"3.)Infix Traversal"<<endl;
@@ -344,6 +407,14 @@ int main(){
                 break;
         }
     }
+    Node *R1,*R2;
+    tree.Split(tree.Root(),6,R1,R2);
+    BSearchTree LeftSubTree,RightSubTree;
+    LeftSubTree.SetRoot(R1);
+    RightSubTree.SetRoot(R2);
+    LeftSubTree.PreTrav(LeftSubTree.Root());
+    cout<<endl;
+    RightSubTree.PreTrav(RightSubTree.Root());
 }
 
 
