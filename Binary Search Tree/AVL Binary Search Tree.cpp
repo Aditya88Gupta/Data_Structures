@@ -44,6 +44,7 @@ class BSearchTree{
     void SetRoot(Node* New);
     void ComputeSize(Node* cur);
     int OrderStatistics(Node* R,int k);
+    int FindRank(int key);
 };
 
 Node* BSearchTree::Root(){
@@ -359,6 +360,28 @@ void BSearchTree::AVLDelete(int val){
     Rebalance(temp);
 }
 
+int BSearchTree::FindRank(int key){
+    Node* cur=find(Root(),key);
+    int Rank=0;
+    if ((cur->Left)!=NULL)
+        Rank=(cur->Left)->size;
+    Node* P=cur->Parent;
+    while(P!=NULL && (cur->key>P->key)){
+        Rank+=1;
+        if (P->Left!=NULL)
+            Rank+=(P->Left)->size;
+        P=P->Parent;
+    }
+    if(P!=NULL){                        // If the given node is not max
+        if(cur->key>Root()->key){      // If the node is right child then all the nodes in the left subtree of root are smaller
+            Rank+=1;
+            if(Root()->Left!=NULL)
+               Rank+=(Root()->Left)->size;
+        }
+    }
+    return Rank+1;   
+}
+
 void BSearchTree::PreTrav(Node *cur){   // O(n)
     
     if (cur==NULL)
@@ -401,7 +424,8 @@ int main(){
         cout<<"5.)Postfix Traversal"<<endl;
         cout<<"6.)Range Search"<<endl;
         cout<<"7.)Order Statistics"<<endl;
-        cout<<"8.)Exit"<<endl;
+        cout<<"8.)Find Rank"<<endl;
+        cout<<"9.)Exit"<<endl;
         cout<<"Enter Your Choice=";cin>>choice;
         switch(choice){
             case 1:
@@ -434,10 +458,15 @@ int main(){
                 cout<<endl;
                 break;    
             case 7:
+                int val;
+                cout<<"Enter the position of the element=";cin>>val; 
+                cout<<(tree.OrderStatistics(tree.Root(),val))<<endl;
+                break;  
+            case 8:
                 int num;
-                cout<<"Enter the position of the element=";cin>>num; 
-                cout<<(tree.OrderStatistics(tree.Root(),num))<<endl;
-                break;   
+                cout<<"Enter the element=";cin>>num; 
+                cout<<(tree.FindRank(num))<<endl;
+                break;      
             default:
                 flag = false;
                 break;
