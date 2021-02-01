@@ -7,7 +7,7 @@ using namespace std;
 
 struct Node{  
     int key;
-    int height;
+    int height,size;
     Node *Left,*Right,*Parent;
 };
 
@@ -42,6 +42,8 @@ class BSearchTree{
     void Split(Node* cur,int key,Node* &R1,Node* &R2);
     Node* Root();
     void SetRoot(Node* New);
+    void ComputeSize(Node* cur);
+    int OrderStatistics(Node* R,int k);
 };
 
 Node* BSearchTree::Root(){
@@ -51,6 +53,31 @@ Node* BSearchTree::Root(){
 void BSearchTree::SetRoot(Node* New){
     root=New;
     root->Parent=NULL;
+}
+
+void BSearchTree::ComputeSize(Node* cur){  
+    // O(1)
+    if(cur!=NULL){
+        int LS=0,RS=0; 
+        if(cur->Left!=NULL)
+        LS = ((cur->Left)->size);
+        if(cur->Right!=NULL)
+        RS = ((cur->Right)->size);
+        cur->size = 1+LS+RS;
+    }
+}
+
+int BSearchTree::OrderStatistics(Node* R,int k){
+    int LS=0;
+    if (R->Left!=NULL)
+        LS=(R->Left)->size;
+    if (LS+1==k)
+       return R->key;
+    else if (LS+1>k)
+       return OrderStatistics(R->Left,k);
+    else if (LS+1<k)
+       return OrderStatistics(R->Right,(k-(LS+1))); 
+    return -1;       
 }
 
 void BSearchTree::AdjustHeight(Node* cur){  
@@ -110,6 +137,9 @@ void BSearchTree::RebalanceRight(Node* cur){  // O(1)
     AdjustHeight(cur);
     AdjustHeight(Left);
     AdjustHeight(Temp);
+    ComputeSize(cur);
+    ComputeSize(Left);
+    ComputeSize(Temp);
 }
 
 void BSearchTree::RebalanceLeft(Node* cur){  // O(1)
@@ -126,6 +156,9 @@ void BSearchTree::RebalanceLeft(Node* cur){  // O(1)
     AdjustHeight(cur);
     AdjustHeight(Right);
     AdjustHeight(Temp);
+    ComputeSize(cur);
+    ComputeSize(Right);
+    ComputeSize(Temp);
 }
 
 void BSearchTree::Rebalance(Node* cur){   // O(log(n))
@@ -140,6 +173,7 @@ void BSearchTree::Rebalance(Node* cur){   // O(log(n))
     else if(LH+1<RH)
         RebalanceLeft(cur);
     AdjustHeight(cur);    
+    ComputeSize(cur);
     if (P!=NULL)
        return Rebalance(P);    
 }
@@ -173,6 +207,7 @@ Node* BSearchTree::MWR(Node* R1,Node* R2,Node* T){
     T->Parent=NULL;
     R1->Parent=R2->Parent=T;
     AdjustHeight(T);
+    ComputeSize(T);
     //Rebalance(T);
     return T;
 }
@@ -365,7 +400,8 @@ int main(){
         cout<<"4.)Prefix Traversal"<<endl;
         cout<<"5.)Postfix Traversal"<<endl;
         cout<<"6.)Range Search"<<endl;
-        cout<<"7.)Exit"<<endl;
+        cout<<"7.)Order Statistics"<<endl;
+        cout<<"8.)Exit"<<endl;
         cout<<"Enter Your Choice=";cin>>choice;
         switch(choice){
             case 1:
@@ -398,21 +434,23 @@ int main(){
                 cout<<endl;
                 break;    
             case 7:
-                flag = false; 
+                int num;
+                cout<<"Enter the position of the element=";cin>>num; 
+                cout<<(tree.OrderStatistics(tree.Root(),num))<<endl;
                 break;   
             default:
                 flag = false;
                 break;
         }
     }
-    Node *R1,*R2;
+    /*Node *R1,*R2;
     tree.Split(tree.Root(),6,R1,R2);
     BSearchTree LeftSubTree,RightSubTree;
     LeftSubTree.SetRoot(R1);
     RightSubTree.SetRoot(R2);
     LeftSubTree.PreTrav(LeftSubTree.Root());
     cout<<endl;
-    RightSubTree.PreTrav(RightSubTree.Root());
+    RightSubTree.PreTrav(RightSubTree.Root());*/
 }
 
 
