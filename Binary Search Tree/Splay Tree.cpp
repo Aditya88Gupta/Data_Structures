@@ -37,6 +37,10 @@ class BSearchTree{
     void Split(Node* cur,int key,Node* &R1,Node* &R2);
     Node* Root();
     void SetRoot(Node* New);
+    void ZigZig(Node* cur,Node* Parent,Node* GParent);
+    void ZigZag(Node* cur,Node* Parent,Node* GParent);
+    void RotateRight(Node* cur);
+    void RotateLeft(Node* cur);
     void Splay(Node* cur);
 };
 
@@ -46,6 +50,94 @@ Node* BSearchTree::Root(){
 void BSearchTree::SetRoot(Node* New){
     root=New;
     root->Parent=NULL;
+}
+
+void BSearchTree::ZigZig(Node* cur,Node* Parent,Node* GParent){  // O(1)
+    cur->Parent = GParent->Parent;
+    GParent->Parent = Parent;
+    Parent->Parent = cur;
+    if(cur->key>Parent->key && cur->key>GParent->key){
+        GParent->Right=Parent->Left;
+        Parent->Left=GParent;
+        Parent->Right=cur->Left;
+        cur->Left=Parent;
+    }else{
+        GParent->Left=Parent->Right;
+        Parent->Right=GParent;
+        Parent->Left=cur->Right;
+        cur->Right=Parent;
+    }
+    if(cur->Parent!=NULL){
+        if(cur->key>(cur->Parent)->key)
+          (cur->Parent)->Right=cur;
+        else 
+          (cur->Parent)->Left=cur;
+    }    
+}
+
+void BSearchTree::ZigZag(Node* cur,Node* Parent,Node* GParent){  // O(1)
+    cur->Parent = GParent->Parent;
+    GParent->Parent = cur;
+    Parent->Parent = cur;
+    if(cur->key>Parent->key && cur->key<GParent->key){
+        Parent->Right=cur->Left;
+        cur->Left=Parent;
+        GParent->Left=cur->Right;
+        cur->Right=GParent;
+    }else{
+        GParent->Right=cur->Left;
+        cur->Left=GParent;
+        Parent->Left=cur->Right;
+        cur->Right=Parent;
+    }
+    if(cur->Parent!=NULL){
+        if(cur->key>(cur->Parent)->key)
+          (cur->Parent)->Right=cur;
+        else 
+          (cur->Parent)->Left=cur;
+    }
+}
+
+void BSearchTree::RotateRight(Node* cur){  // O(1)
+    Node* Left = cur->Left;
+    Left->Parent = cur->Parent;
+    cur->Left = Left->Right;
+    Left->Right = cur;
+    cur->Parent = Left;
+}
+
+void BSearchTree::RotateLeft(Node* cur){  // O(1)
+    Node* Right = cur->Right;
+    Right->Parent = cur->Parent;
+    cur->Right = Right->Left;
+    Right->Left = cur;
+    cur->Parent = Right;
+    
+}
+
+void BSearchTree::Splay(Node* cur){
+    Node* Parent = cur->Parent;
+    if(Parent==NULL){             // ALready Root
+      SetRoot(cur);
+      return;
+    }
+    Node* GParent = Parent->Parent;
+    if(GParent==NULL){           // Simple Rotate (Case--Zig)
+      if (cur->key<Parent->key)
+         RotateRight(Parent);
+      else
+         RotateLeft(Parent);   
+      Splay(cur);
+    }
+    else if((cur->key>Parent->key && cur->key>GParent->key) || (cur->key<Parent->key && cur->key<GParent->key)){  
+      ZigZig(cur,Parent,GParent);        // Same Direction
+      Splay(cur); 
+    }
+    else{
+        ZigZag(cur,Parent,GParent);     // Opposite Direction
+        Splay(cur);
+    }
+
 }
 
 Node* BSearchTree::find(Node *cur,int key){                  
@@ -71,7 +163,7 @@ Node* BSearchTree::STfind(Node* cur,int key){
 }
 
 Node* BSearchTree::Merge(Node* R1,Node* R2){
-    int Inf=numeric_limits<int>::max();   // Max value int can take 
+    int Inf=numeric_limits<int>::max();     // Max value int can take 
     Node* newroot= STfind(R1,Inf);         // Find node with max value
     newroot->Right = R2;
     R2->Parent=newroot;
@@ -120,11 +212,12 @@ Node* BSearchTree::Next(Node *cur){      // O(Height(Tree))
        return RightAncestor(cur);      // If Right child does not exists, then find first ancestor with a greater key
 }
 
-/*Node* BSearchTree::STNext(Node *cur){      
+Node* BSearchTree::STNext(Node *cur){      
     Node* N = Next(cur);
-    Splay(N);
+    if (N!=NULL)
+       Splay(N);
     return N;  
-}*/
+}
 
 void BSearchTree::RangedSearch(int lower,int upper,Node *Root){   
                                       // O(n)
@@ -134,8 +227,7 @@ void BSearchTree::RangedSearch(int lower,int upper,Node *Root){
     while (cur->key<=upper){
         if(cur->key>=lower)
            cout<<cur->key<<" ";
-        cur = Next(cur);
-        Splay(cur);
+        cur = STNext(cur);
     }  
 }
 
@@ -203,6 +295,7 @@ void BSearchTree::STDelete(Node* Temp){
     if (next==NULL){
         Splay(Temp);
         (Temp->Left)->Parent = NULL;
+        SetRoot(Temp->Left);
         delete Temp;
         return;
     }
@@ -266,12 +359,12 @@ int main(){
         cout<<"Enter Your Choice=";cin>>choice;
         switch(choice){
             case 1:
-                cout<<"Enter The Element To Be Inserted =";
+                cout<<"Enter The Element To Be Inserted=";
                 cin>>ele;
                 tree.STInsert(ele);
                 break;
             case 2:
-                cout<<"Enter The Element To Be Deleted =";
+                cout<<"Enter The Element To Be Deleted=";
                 cin>>x;
                 tree.STDelete(tree.find(tree.Root(),x));
                 break;
