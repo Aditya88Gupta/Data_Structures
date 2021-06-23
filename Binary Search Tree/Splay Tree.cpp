@@ -222,8 +222,8 @@ Node* BSearchTree::STNext(Node *cur){
 void BSearchTree::RangedSearch(int lower,int upper,Node *Root){   
                                       // O(n)
     Node* cur = STfind(Root,lower);
-    if(cur->key>lower)
-      cout<<cur->key<<" ";
+    /*if(cur->key>lower)
+      cout<<cur->key<<" ";*/
     while (cur->key<=upper){
         if(cur->key>=lower)
            cout<<cur->key<<" ";
